@@ -59,9 +59,7 @@ function LoginForm() {
           transition={{ duration: 0.7 }}
           style={{ textAlign: 'center', zIndex: 1 }}
         >
-          <div style={{ position: 'relative', width: 100, height: 100, margin: '0 auto 24px' }}>
-            <Image src="/logo.webp" alt="MU" fill style={{ objectFit: 'contain', mixBlendMode: 'luminosity', filter: 'brightness(2)' }} />
-          </div>
+          
           <div style={{ color: '#F5A623', fontWeight: 900, fontSize: 32, marginBottom: 4 }}>SCHub</div>
           <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 13, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 40 }}>
             Student Center Hub
@@ -74,18 +72,7 @@ function LoginForm() {
             Order food, groceries and supplies. Book salon, tech and health services. All in one place.
           </p>
 
-          <div style={{ display: 'flex', gap: 24, justifyContent: 'center', marginTop: 48 }}>
-            {[
-              { n: '7',    l: 'Vendors'  },
-              { n: '500+', l: 'Products' },
-              { n: '2K+',  l: 'Students' },
-            ].map(s => (
-              <div key={s.l} style={{ textAlign: 'center' }}>
-                <div style={{ color: '#F5A623', fontWeight: 900, fontSize: 22 }}>{s.n}</div>
-                <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12 }}>{s.l}</div>
-              </div>
-            ))}
-          </div>
+         
         </motion.div>
       </div>
 
@@ -185,13 +172,6 @@ function LoginForm() {
                   onFocus={e => e.target.style.borderColor = '#F5A623'}
                   onBlur={e => e.target.style.borderColor = '#E8EBF2'}
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPw(v => !v)}
-                  style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#8892A4' }}
-                >
-                  {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
               </div>
             </div>
 

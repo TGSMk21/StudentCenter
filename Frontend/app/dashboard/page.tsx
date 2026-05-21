@@ -77,9 +77,6 @@ export default function DashboardPage() {
         {/* Logo */}
         <div style={{ padding: '24px 20px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
           <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-            <div style={{ position: 'relative', width: 40, height: 40 }}>
-              <Image src="/logo.webp" alt="MU" fill style={{ objectFit: 'contain', mixBlendMode: 'luminosity', filter: 'brightness(2)' }} />
-            </div>
             <div>
               <div style={{ color: '#F5A623', fontWeight: 900, fontSize: 16 }}>SCHub</div>
               <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 9, letterSpacing: 1 }}>STUDENT CENTER</div>

@@ -83,9 +83,6 @@ export default function VendorRegisterPage() {
           transition={{ duration: 0.7 }}
           style={{ textAlign: 'center', zIndex: 1 }}
         >
-          <div style={{ position: 'relative', width: 90, height: 90, margin: '0 auto 20px' }}>
-            <Image src="/logo.webp" alt="MU" fill style={{ objectFit: 'contain', mixBlendMode: 'luminosity', filter: 'brightness(2)' }} />
-          </div>
           <div style={{ color: '#F5A623', fontWeight: 900, fontSize: 28, marginBottom: 4 }}>SCHub</div>
           <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 40 }}>Vendor Registration</div>
           <h2 style={{ color: '#fff', fontWeight: 800, fontSize: 24, marginBottom: 32, lineHeight: 1.3 }}>Start selling on campus</h2>
@@ -180,6 +177,9 @@ export default function VendorRegisterPage() {
                   <div style={{ position: 'relative' }}>
                     <Lock size={15} color="#8892A4" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} />
                     <input type="password" value={form.confirm} onChange={e => update('confirm', e.target.value)} placeholder="Re-enter password" required style={inputStyle} />
+                    <button type="button" onClick={() => setShowPw(v => !v)} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#8892A4' }}>
+                      {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
+                    </button>
                   </div>
                 </div>
                 <button type="button" onClick={() => setStep(2)} style={{

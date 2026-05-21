@@ -57,9 +57,7 @@ export default function RegisterPage() {
           transition={{ duration: 0.7 }}
           style={{ textAlign: 'center', zIndex: 1 }}
         >
-          <div style={{ position: 'relative', width: 90, height: 90, margin: '0 auto 20px' }}>
-            <Image src="/logo.webp" alt="MU" fill style={{ objectFit: 'contain', mixBlendMode: 'luminosity', filter: 'brightness(2)' }} />
-          </div>
+          
           <div style={{ color: '#F5A623', fontWeight: 900, fontSize: 28, marginBottom: 4 }}>SCHub</div>
           <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 40 }}>
             Student Center Hub
@@ -177,7 +175,7 @@ export default function RegisterPage() {
                   type={showPw ? 'text' : 'password'}
                   value={form.password}
                   onChange={e => update('password', e.target.value)}
-                  placeholder="Min 6 characters"
+                  placeholder="Min 8 characters"
                   required
                   style={{ width: '100%', padding: '13px 44px 13px 40px', border: '2px solid #E8EBF2', borderRadius: 10, fontSize: 14, color: '#0A0F1E', background: '#fff', outline: 'none', boxSizing: 'border-box', transition: 'border-color 0.2s' }}
                   onFocus={e => e.target.style.borderColor = '#F5A623'}
@@ -195,7 +193,7 @@ export default function RegisterPage() {
               <div style={{ position: 'relative' }}>
                 <Lock size={15} color="#8892A4" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} />
                 <input
-                  type="password"
+                  type={showPw ? 'text' : 'password'}
                   value={form.confirm}
                   onChange={e => update('confirm', e.target.value)}
                   placeholder="Re-enter password"
@@ -204,6 +202,9 @@ export default function RegisterPage() {
                   onFocus={e => e.target.style.borderColor = '#F5A623'}
                   onBlur={e => e.target.style.borderColor = form.confirm && form.confirm !== form.password ? '#E74C3C' : '#E8EBF2'}
                 />
+                <button type="button" onClick={() => setShowPw(v => !v)} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#8892A4' }}>
+                  {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
+                </button>
               </div>
               {form.confirm && form.confirm !== form.password && (
                 <p style={{ color: '#E74C3C', fontSize: 12, marginTop: 6 }}>Passwords do not match</p>
