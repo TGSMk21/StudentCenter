@@ -10,7 +10,8 @@ from rest_framework.views import APIView
 from drf_spectacular.utils import extend_schema
 
 from .models import Booking
-from .serializers import BookingSerializer, BookingCreateSerializer
+from .serializers import BookingSerializer, BookingCreateSerializer, BookingStatusUpdateSerializer
+from rest_framework.permissions import IsAuthenticated
 
 
 @extend_schema(tags=["bookings"])
@@ -43,15 +44,11 @@ class VendorBookingListView(generics.ListAPIView):
 
 @extend_schema(tags=["bookings"])
 class BookingStatusUpdateView(generics.UpdateAPIView):
-    serializer_class = BookingSerializer
+    serializer_class = BookingStatusUpdateSerializer
     http_method_names = ["patch"]
 
     def get_queryset(self):
         return Booking.objects.filter(vendor__owner=self.request.user)
-
-    def get_serializer(self, *args, **kwargs):
-        kwargs["fields"] = ["status"]
-        return super().get_serializer(*args, **kwargs)
 
 
 @extend_schema(tags=["bookings"])
@@ -64,3 +61,17 @@ class AvailabilityView(APIView):
             return Response({"error": "?date=YYYY-MM-DD is required."}, status=400)
         booked = Booking.check_availability(vendor_id=vendor_id, date=date)
         return Response({"booked_slots": list(booked)})
+
+
+@extend_schema(tags=["bookings"])
+class StudentBookingCancelView(generics.UpdateAPIView):
+    """Allow a student to cancel their own pending or confirmed booking."""
+
+    serializer_class = BookingStatusUpdateSerializer
+    http_method_names = ["patch"]
+
+    def get_queryset(self):
+        return Booking.objects.filter(student=self.request.user, status__in=["pending", "confirmed"])
+
+    def perform_update(self, serializer):
+        serializer.save(status=Booking.Status.CANCELLED)

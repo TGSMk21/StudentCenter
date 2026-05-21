@@ -2,30 +2,35 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { TrendingUp, Package, ShoppingBag, Calendar, DollarSign, ArrowRight, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { TrendingUp, Package, ShoppingBag, Calendar, DollarSign, ArrowRight, Clock, CheckCircle } from 'lucide-react';
 import api from '@/lib/api';
 
 export default function VendorDashboardPage() {
   const [vendor, setVendor] = useState<any>(null);
   const [orders, setOrders] = useState<any[]>([]);
+  const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     Promise.all([
       api.get('/vendors/me/').then(r => setVendor(r.data)),
       api.get('/orders/vendor/').then(r => setOrders(r.data.results || r.data)),
+      api.get('/bookings/vendor/').then(r => setBookings(r.data.results || r.data)),
     ]).finally(() => setLoading(false));
   }, []);
 
-  const totalRevenue = orders.filter(o => o.payment_status === 'success').reduce((s, o) => s + parseFloat(o.total_amount || 0), 0);
+  const orderRevenue = orders.filter(o => o.order_status === 'completed').reduce((s, o) => s + parseFloat(o.total_amount || 0), 0);
+  const bookingRevenue = bookings.filter(b => b.status === 'completed').reduce((s, b) => s + parseFloat(b.service_price || 0), 0);
+  const totalRevenue = orderRevenue + bookingRevenue;
   const pendingOrders = orders.filter(o => o.order_status === 'placed' || o.order_status === 'processing').length;
   const completedOrders = orders.filter(o => o.order_status === 'completed').length;
+  const completedBookings = bookings.filter(b => b.status === 'completed').length;
 
   const stats = [
     { label: 'Total Revenue', value: `K${totalRevenue.toFixed(0)}`, icon: DollarSign, color: '#2ECC71', bg: '#E8FAF1' },
     { label: 'Pending Orders', value: pendingOrders, icon: Clock, color: '#F39C12', bg: '#FEF6E8' },
     { label: 'Completed Orders', value: completedOrders, icon: CheckCircle, color: '#3498DB', bg: '#E8F4FD' },
-    { label: 'Total Orders', value: orders.length, icon: TrendingUp, color: '#1B3A6B', bg: '#E8F0FF' },
+    { label: 'Completed Bookings', value: completedBookings, icon: Calendar, color: '#9B59B6', bg: '#F3E8FD' },
   ];
 
   const recentOrders = orders.slice(0, 5);

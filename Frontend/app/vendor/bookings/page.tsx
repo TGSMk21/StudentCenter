@@ -1,7 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { Calendar, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 import api from '@/lib/api';
 
 const STATUS: Record<string, { color: string; bg: string }> = {
@@ -14,6 +13,7 @@ const STATUS: Record<string, { color: string; bg: string }> = {
 export default function VendorBookingsPage() {
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState('all');
 
   useEffect(() => {
     api.get('/bookings/vendor/').then(r => {
@@ -21,11 +21,16 @@ export default function VendorBookingsPage() {
     }).finally(() => setLoading(false));
   }, []);
 
+  const filtered = filter === 'all' ? bookings : bookings.filter(b => b.status === filter);
+
   async function updateStatus(id: string, status: string) {
+    const prev = [...bookings];
+    setBookings(b => b.map(x => x.id === id ? { ...x, status } : x));
     try {
       await api.patch(`/bookings/${id}/status/`, { status });
-      setBookings(b => b.map(x => x.id === id ? { ...x, status } : x));
-    } catch {}
+    } catch {
+      setBookings(prev);
+    }
   }
 
   return (
@@ -35,16 +40,35 @@ export default function VendorBookingsPage() {
         <p style={{ color: '#8892A4', fontSize: 14 }}>{bookings.length} total bookings</p>
       </div>
 
+      <div style={{ display: 'flex', gap: 8, marginBottom: 24, flexWrap: 'wrap' }}>
+        {['all', 'pending', 'confirmed', 'completed', 'cancelled'].map(s => (
+          <button
+            key={s}
+            onClick={() => setFilter(s)}
+            style={{
+              padding: '8px 18px', borderRadius: 50, border: '2px solid',
+              borderColor: filter === s ? '#0D2B5E' : '#E8EBF2',
+              background: filter === s ? '#0D2B5E' : '#fff',
+              color: filter === s ? '#fff' : '#444',
+              fontWeight: 600, fontSize: 13, cursor: 'pointer', transition: 'all 0.2s',
+              textTransform: 'capitalize',
+            }}
+          >
+            {s === 'all' ? 'All' : s}
+          </button>
+        ))}
+      </div>
+
       {loading ? (
         <div style={{ color: '#8892A4' }}>Loading...</div>
-      ) : bookings.length === 0 ? (
+      ) : filtered.length === 0 ? (
         <div style={{ textAlign: 'center', padding: 60, color: '#8892A4' }}>
           <Calendar size={48} style={{ marginBottom: 12, opacity: 0.3 }} />
-          <p>No bookings yet</p>
+          <p>No bookings found</p>
         </div>
       ) : (
         <div style={{ display: 'grid', gap: 16 }}>
-          {bookings.map(b => {
+          {filtered.map(b => {
             const sc = STATUS[b.status] || { bg: '#F4F6FB', color: '#8892A4' };
             return (
               <div key={b.id} style={{ background: '#fff', borderRadius: 16, border: '1px solid #E8EBF2', padding: 20, display: 'flex', alignItems: 'center', gap: 20 }}>
@@ -55,7 +79,7 @@ export default function VendorBookingsPage() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
                     <div>
                       <div style={{ fontWeight: 700, fontSize: 14, color: '#0A0F1E', marginBottom: 2 }}>
-                        {b.service_name || 'Service'} — {b.student_name || 'Student'}
+                        {b.service_name} — {b.student_name}
                       </div>
                       <div style={{ fontSize: 13, color: '#8892A4' }}>
                         {b.slot_date} at {b.slot_time} · {b.confirmation_code}
@@ -78,9 +102,14 @@ export default function VendorBookingsPage() {
                       </>
                     )}
                     {b.status === 'confirmed' && (
-                      <button onClick={() => updateStatus(b.id, 'completed')} style={{ padding: '6px 16px', background: '#E8F4FD', color: '#3498DB', border: '1px solid #3498DB', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
-                        Mark Completed
-                      </button>
+                      <>
+                        <button onClick={() => updateStatus(b.id, 'completed')} style={{ padding: '6px 16px', background: '#E8F4FD', color: '#3498DB', border: '1px solid #3498DB', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                          Mark Completed
+                        </button>
+                        <button onClick={() => updateStatus(b.id, 'cancelled')} style={{ padding: '6px 16px', background: '#FDE8E8', color: '#E74C3C', border: '1px solid #E74C3C', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                          Cancel
+                        </button>
+                      </>
                     )}
                   </div>
                 </div>

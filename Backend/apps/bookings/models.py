@@ -15,7 +15,6 @@ class Booking(models.Model):
         CONFIRMED = "confirmed", "Confirmed"
         COMPLETED = "completed", "Completed"
         CANCELLED = "cancelled", "Cancelled"
-        NO_SHOW = "no_show", "No Show"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     student = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bookings")

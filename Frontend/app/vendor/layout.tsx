@@ -6,7 +6,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import api from '@/lib/api';
 import {
   LayoutDashboard, Package, ShoppingBag, Calendar, Settings,
-  LogOut, Store, ChevronRight, Bell
+  LogOut, Store, History,
 } from 'lucide-react';
 
 const NAV_ITEMS = [
@@ -14,6 +14,7 @@ const NAV_ITEMS = [
   { label: 'Products',  icon: Package,         href: '/vendor/products' },
   { label: 'Orders',    icon: ShoppingBag,     href: '/vendor/orders' },
   { label: 'Bookings',  icon: Calendar,        href: '/vendor/bookings' },
+  { label: 'Audit Log', icon: History,         href: '/vendor/audit' },
   { label: 'Settings',  icon: Settings,        href: '/vendor/settings' },
 ];
 

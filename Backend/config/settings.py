@@ -50,6 +50,7 @@ LOCAL_APPS = [
     "apps.bookings",
     "apps.notifications",
     "apps.disputes",
+    "apps.audit",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -195,6 +196,12 @@ CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = "Africa/Lusaka"
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+
+if DEBUG:
+    CELERY_TASK_ALWAYS_EAGER = True
+    CELERY_TASK_EAGER_PROPAGATES = True
+    CELERY_BROKER_URL = "memory://"
+    CELERY_RESULT_BACKEND = "cache+memory://"
 
 # ─────────────────────────────────────────────────────────────
 # FLUTTERWAVE

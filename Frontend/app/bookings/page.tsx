@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
-import { ArrowLeft, Calendar, Clock, CheckCircle, XCircle, ChevronRight, Plus } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, CheckCircle, XCircle, ChevronRight, Plus, Trash2 } from 'lucide-react';
 
 const STATUS: Record<string, { color: string; bg: string }> = {
   confirmed: { color: '#2ECC71', bg: '#E8FAF1' },
@@ -22,6 +22,8 @@ export default function BookingsPage() {
     const u = localStorage.getItem('user');
     if (!u) { router.push('/login'); return; }
     fetchBookings();
+    const interval = setInterval(fetchBookings, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   async function fetchBookings() {
@@ -31,6 +33,17 @@ export default function BookingsPage() {
     } catch {
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function cancelBooking(id: string) {
+    if (!confirm('Cancel this booking?')) return;
+    const prev = [...bookings];
+    setBookings(b => b.map(x => x.id === id ? { ...x, status: 'cancelled' } : x));
+    try {
+      await api.patch(`/bookings/${id}/cancel/`, { status: 'cancelled' });
+    } catch {
+      setBookings(prev);
     }
   }
 
@@ -98,7 +111,16 @@ export default function BookingsPage() {
                   </div>
                   <div style={{ textAlign: 'right', flexShrink: 0 }}>
                     <div style={{ fontSize: 11, color: '#8892A4', marginBottom: 4 }}>Confirmation</div>
-                    <div style={{ fontWeight: 800, fontSize: 13, color: '#0D2B5E' }}>{b.confirmation_code}</div>
+                    <div style={{ fontWeight: 800, fontSize: 13, color: '#0D2B5E', marginBottom: 8 }}>{b.confirmation_code}</div>
+                    {(b.status === 'pending' || b.status === 'confirmed') && (
+                      <button onClick={() => cancelBooking(b.id)} style={{
+                        padding: '6px 12px', background: '#FDE8E8', color: '#E74C3C',
+                        border: '1px solid #E74C3C', borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', gap: 4,
+                      }}>
+                        <Trash2 size={12} /> Cancel
+                      </button>
+                    )}
                   </div>
                 </motion.div>
               );

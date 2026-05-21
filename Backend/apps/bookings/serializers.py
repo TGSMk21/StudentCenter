@@ -33,3 +33,9 @@ class BookingCreateSerializer(serializers.ModelSerializer):
         if Booking.objects.filter(vendor=vendor, slot_date=date, slot_time=time).exclude(status=Booking.Status.CANCELLED).exists():
             raise serializers.ValidationError("This time slot is already booked.")
         return attrs
+
+
+class BookingStatusUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Booking
+        fields = ["status"]

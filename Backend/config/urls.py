@@ -32,6 +32,7 @@ urlpatterns = [
     path(f"{API_PREFIX}bookings/", include("apps.bookings.urls", namespace="bookings")),
     path(f"{API_PREFIX}notifications/", include("apps.notifications.urls", namespace="notifications")),
     path(f"{API_PREFIX}disputes/", include("apps.disputes.urls", namespace="disputes")),
+    path(f"{API_PREFIX}audit/", include("apps.audit.urls", namespace="audit")),
 ]
 
 if settings.DEBUG:

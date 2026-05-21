@@ -123,9 +123,22 @@ class OrderStatusUpdateView(generics.UpdateAPIView):
     def get_queryset(self):
         return Order.objects.filter(vendor__owner=self.request.user)
 
+    @transaction.atomic
     def perform_update(self, serializer):
         order = serializer.save()
-        # Trigger notification async
+        if order.order_status == Order.Status.COMPLETED:
+            order.payment_status = Order.PaymentStatus.SUCCESS
+            order.save(update_fields=["payment_status"])
+            for item in order.items.select_related("product").all():
+                if not item.product.is_service:
+                    item.product.decrement_stock(item.quantity)
+            from apps.audit.models import AuditLog
+            AuditLog.log(
+                vendor=order.vendor,
+                action=AuditLog.Action.ORDER_COMPLETED,
+                description=f"Order #{str(order.id)[:8]} completed — K{order.total_amount} from {order.student.name}",
+                metadata={"order_id": str(order.id), "total_amount": str(order.total_amount), "student": order.student.email},
+            )
         from apps.notifications.tasks import send_order_status_notification
         send_order_status_notification.delay(str(order.id))
 

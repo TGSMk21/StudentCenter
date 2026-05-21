@@ -8,5 +8,6 @@ urlpatterns = [
     path("create/", views.BookingCreateView.as_view(), name="create"),
     path("vendor/", views.VendorBookingListView.as_view(), name="vendor-list"),
     path("<uuid:pk>/status/", views.BookingStatusUpdateView.as_view(), name="status-update"),
+    path("<uuid:pk>/cancel/", views.StudentBookingCancelView.as_view(), name="cancel"),
     path("availability/<uuid:vendor_id>/", views.AvailabilityView.as_view(), name="availability"),
 ]

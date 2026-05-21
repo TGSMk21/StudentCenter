@@ -79,7 +79,14 @@ class ProductCreateView(generics.CreateAPIView):
             )
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save(vendor=vendor)
+        product = serializer.save(vendor=vendor)
+        from apps.audit.models import AuditLog
+        AuditLog.log(
+            vendor=vendor,
+            action=AuditLog.Action.PRODUCT_CREATED,
+            description=f"Product '{product.name}' created at K{product.price}",
+            metadata={"product_id": str(product.id), "product_name": product.name, "price": str(product.price), "stock": product.stock},
+        )
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
@@ -94,6 +101,18 @@ class ProductUpdateView(generics.UpdateAPIView):
     def get_queryset(self):
         return Product.objects.filter(vendor__owner=self.request.user)
 
+    def perform_update(self, serializer):
+        old_stock = self.get_object().stock
+        product = serializer.save()
+        if product.stock != old_stock:
+            from apps.audit.models import AuditLog
+            AuditLog.log(
+                vendor=product.vendor,
+                action=AuditLog.Action.STOCK_UPDATED,
+                description=f"Stock for '{product.name}' changed from {old_stock} to {product.stock}",
+                metadata={"product_id": str(product.id), "product_name": product.name, "old_stock": old_stock, "new_stock": product.stock},
+            )
+
 
 @extend_schema(tags=["products"])
 class ProductDeleteView(generics.DestroyAPIView):
@@ -101,3 +120,13 @@ class ProductDeleteView(generics.DestroyAPIView):
 
     def get_queryset(self):
         return Product.objects.filter(vendor__owner=self.request.user)
+
+    def perform_destroy(self, instance):
+        from apps.audit.models import AuditLog
+        AuditLog.log(
+            vendor=instance.vendor,
+            action=AuditLog.Action.PRODUCT_DELETED,
+            description=f"Product '{instance.name}' deleted (was K{instance.price})",
+            metadata={"product_id": str(instance.id), "product_name": instance.name, "price": str(instance.price)},
+        )
+        super().perform_destroy(instance)
