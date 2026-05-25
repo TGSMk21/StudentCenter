@@ -2,7 +2,7 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import {
   ShoppingBag, Calendar, Bell, Shield, Star, ArrowRight,
   MapPin, Clock, Users, TrendingUp, ChevronRight, Zap,
@@ -10,6 +10,7 @@ import {
   Tag, Truck, Phone, ChevronDown, Menu, X, Heart,
   ShoppingCart, Package, CheckCircle
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 
 
@@ -19,6 +20,9 @@ const fadeUp = {
 };
 
 export default function LandingPage() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser ] = useState<any>(null);
+  const initials = user?.name?.split('').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase() || 'S';
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
   const heroRef = useRef(null);
@@ -26,6 +30,13 @@ export default function LandingPage() {
   const heroOpacity = useTransform(scrollY, [0, 400], [1, 0]);
   const heroY = useTransform(scrollY, [0, 400], [0, 80]);
 
+  useEffect(() => {
+    const token = localStorage.getItem('access_token');
+    const storedUser = localStorage.getItem('user');
+    setIsLoggedIn(!!token);
+    if(storedUser) setUser(JSON.parse(storedUser));
+  }, []);
+  
   return (
     <div style={{ fontFamily: "'DM Sans', 'Inter', sans-serif", background: '#F4F6FB', minHeight: '100vh' }}>
 
@@ -101,38 +112,66 @@ export default function LandingPage() {
           </div>
 
           {/* Nav Actions */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-            <Link href="/login" style={{
-              color: '#0D2B5E', textDecoration: 'none', padding: '10px 20px',
-              fontWeight: 600, fontSize: 14, borderRadius: 8,
-              border: '2px solid #E8EBF2', whiteSpace: 'nowrap',
-            }}>
-              Sign In
-            </Link>
-            <Link href="/register" style={{
-              background: '#0D2B5E', color: '#fff', textDecoration: 'none',
-              padding: '10px 20px', fontWeight: 700, fontSize: 14,
-              borderRadius: 8, whiteSpace: 'nowrap',
-              display: 'flex', alignItems: 'center', gap: 6,
-            }}>
-              <ShoppingCart size={15} /> Get Started
-            </Link>
+          <div style= {{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0}}>
+            {isLoggedIn ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <Link href="/dashboard" style={{
+                  background: '#0D2B5E', color: '#fff', textDecoration: 'none',
+                  padding: '10px 20px', fontWeight: 700, fontSize: 14,
+                  borderRadius: 8, display: 'flex', alignItems: 'center', gap: 6,
+                  border: '2px solid #E8EBF2',
+                }}>
+                  <ShoppingCart size={15} /> My Dashboard
+                </Link>
+                <Link href="/profile" style={{ textDecoration: 'none', marginRight: 'auto' }}>
+                  <div style={{ display: 'flex', alignItems: 'right', gap: 10 }}>
+                  <div style={{
+                    width: 40, height: 40, borderRadius: '50%',
+                    background: '#F5A623', display: 'flex', alignItems: 'center',
+                    justifyContent: 'center', fontWeight: 900, fontSize: 15,
+                    color: '#0D2B5E', flexShrink: 0, cursor: 'pointer',
+                  }}>
+                    {initials}
+                  </div>
+                </div>
+                </Link>
+                
+              </div>
+            ) : (
+              <>
+                  <Link href="/login" style={{
+                    color: '#0D2B5E', textDecoration: 'none', padding: '10px 20px',
+                    fontWeight: 600, fontSize: 14, borderRadius: 8,
+                    border: '2px solid #E8EBF2', whiteSpace: 'nowrap',
+                    }}>
+                    Sign In
+                  </Link>
+                  <Link href="/register" style={{
+                    background: '#0D2B5E', color: '#fff', textDecoration: 'none',
+                    padding: '10px 20px', fontWeight: 700, fontSize: 14,
+                    borderRadius: 8, whiteSpace: 'nowrap',
+                    display: 'flex', alignItems: 'center', gap: 6,
+                    }}>
+                    <ShoppingCart size={15} /> Get Started
+                  </Link>
+              </>
+            )}
           </div>
-        </div>
+         </div>
 
       </motion.nav>
 
       {/* HERO */}
       <section style={{
-    backgroundImage:
-      "linear-gradient(rgba(13,43,94,0.82), rgba(22,52,96,0.88)), url('Gemini_Generated_Image_rag92grag92grag9.png')",
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat',
-    padding: '0 5%',
-    overflow: 'hidden',
-    position: 'relative',
-  }}>
+        backgroundImage:
+        "linear-gradient(rgba(13,43,94,0.82), rgba(22,52,96,0.88)), url('Gemini_Generated_Image_rag92grag92grag9.png')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        padding: '0 5%',
+        overflow: 'hidden',
+        position: 'relative',
+      }}>
 
         <div style={{ maxWidth: 1280, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40, alignItems: 'center', minHeight: 720, padding: '48px 0' }}>
           {/* Left */}
@@ -152,9 +191,10 @@ export default function LandingPage() {
             }}>
               Food, groceries, beauty, tech, healthcare and more from 7 Student Center vendors. Order online, book services, pay your way.
             </motion.p>
-
+     
             <motion.div variants={fadeUp} custom={3} style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 40 }}>
-              <Link href="/register" style={{
+              { !isLoggedIn && (
+                <Link href="/register" style={{
                 background: '#F5A623', color: '#0D2B5E', fontWeight: 800,
                 padding: '14px 28px', borderRadius: 10, textDecoration: 'none',
                 fontSize: 15, display: 'flex', alignItems: 'center', gap: 8,
@@ -162,6 +202,7 @@ export default function LandingPage() {
               }}>
                 <ShoppingBag size={18} /> Start Shopping
               </Link>
+              )}
               <Link href="/vendors" style={{
                 background: 'rgba(90, 114, 111, 0.1)', color: '#fff',
                 border: '1.5px solid rgba(255,255,255,0.25)',
@@ -180,7 +221,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-       <section style={{ background: '#FFFFFF', padding: '88px 5%', borderTop: '1px solid #EAEAEA' }}>
+      <section style={{ background: '#FFFFFF', padding: '88px 5%', borderTop: '1px solid #EAEAEA' }}>
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -199,10 +240,15 @@ export default function LandingPage() {
               Get a whole shawarma delivered, or pick up any fast food — from fried chips to grilled chicken, or make an order for ice cream.
             </p>
             <div style={{ width: 48, height: 4, background: '#F39C12', borderRadius: 4, marginBottom: 32 }} />
-            <Link href="/register" style={{ display: 'inline-flex', alignItems: 'center', gap: 9, background: '#0D2B5E', color: '#fff', fontWeight: 700, padding: '14px 28px', borderRadius: 10, textDecoration: 'none', fontSize: 15 }}
+            {!isLoggedIn ? (<Link href="/register" style={{ display: 'inline-flex', alignItems: 'center', gap: 9, background: '#0D2B5E', color: '#fff', fontWeight: 700, padding: '14px 28px', borderRadius: 10, textDecoration: 'none', fontSize: 15 }}
+              className="transition-transform duration-300 hover:translate-x-2">
+               View Restruants <ChevronRight size={17} />
+            </Link>) : (
+              <Link href="/vendors" style={{ display: 'inline-flex', alignItems: 'center', gap: 9, background: '#0D2B5E', color: '#fff', fontWeight: 700, padding: '14px 28px', borderRadius: 10, textDecoration: 'none', fontSize: 15 }}
               className="transition-transform duration-300 hover:translate-x-2">
                View Restruants <ChevronRight size={17} />
             </Link>
+            )}
           </div>
 
           <div style={{ position: 'relative' }}>
@@ -233,10 +279,15 @@ export default function LandingPage() {
               Fill your basket with fresh produce, deli favourites, frozen foods, beverages, and household essentials without leaving your room.
             </p>
             <div style={{ width: 48, height: 4, background: '#2ECC71', borderRadius: 4, marginBottom: 32 }} />
-            <Link href="/register" style={{ display: 'inline-flex', alignItems: 'center', gap: 9, background: '#0D2B5E', color: '#fff', fontWeight: 700, padding: '14px 28px', borderRadius: 10, textDecoration: 'none', fontSize: 15 }}
+            {!isLoggedIn ? (<Link href="/register" style={{ display: 'inline-flex', alignItems: 'center', gap: 9, background: '#0D2B5E', color: '#fff', fontWeight: 700, padding: '14px 28px', borderRadius: 10, textDecoration: 'none', fontSize: 15 }}
+              className="transition-transform duration-300 hover:translate-x-2">
+              Buy Groceries <ChevronRight size={17} />
+            </Link>) : (
+              <Link href="/vendors" style={{ display: 'inline-flex', alignItems: 'center', gap: 9, background: '#0D2B5E', color: '#fff', fontWeight: 700, padding: '14px 28px', borderRadius: 10, textDecoration: 'none', fontSize: 15 }}
               className="transition-transform duration-300 hover:translate-x-2">
               Buy Groceries <ChevronRight size={17} />
             </Link>
+            )}
           </div>
 
           <div style={{ position: 'relative', order: 1 }}>
@@ -268,10 +319,15 @@ export default function LandingPage() {
               Discover trusted medicines, supplements, skincare products, and healthcare necessities — all in one convenient place.
             </p>
             <div style={{ width: 48, height: 4, background: '#1ABC9C', borderRadius: 4, marginBottom: 32 }} />
-            <Link href="/register" style={{ display: 'inline-flex', alignItems: 'center', gap: 9, background: '#0D2B5E', color: '#fff', fontWeight: 700, padding: '14px 28px', borderRadius: 10, textDecoration: 'none', fontSize: 15 }}
+            { !isLoggedIn ? (<Link href="/register" style={{ display: 'inline-flex', alignItems: 'center', gap: 9, background: '#0D2B5E', color: '#fff', fontWeight: 700, padding: '14px 28px', borderRadius: 10, textDecoration: 'none', fontSize: 15 }}
+              className="transition-transform duration-300 hover:translate-x-2">
+               View Medication <ChevronRight size={17} />
+            </Link>) : (
+              <Link href="/vendors" style={{ display: 'inline-flex', alignItems: 'center', gap: 9, background: '#0D2B5E', color: '#fff', fontWeight: 700, padding: '14px 28px', borderRadius: 10, textDecoration: 'none', fontSize: 15 }}
               className="transition-transform duration-300 hover:translate-x-2">
                View Medication <ChevronRight size={17} />
             </Link>
+            )}
           </div>
 
           <div style={{ position: 'relative' }}>
@@ -334,7 +390,7 @@ export default function LandingPage() {
       </section>
 
       {/* CTA BANNER */}
-      <section style={{
+      {!isLoggedIn && (<section style={{
         background: 'linear-gradient(135deg, #0D2B5E 0%, #1B3A6B 100%)',
         padding: '64px 5%', position: 'relative', overflow: 'hidden',
       }}>
@@ -368,6 +424,8 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+      )}
+      
 
       {/* FOOTER */}
       <footer style={{ background: '#0A0F1E', padding: '48px 5% 24px', color: 'rgba(255,255,255,0.5)' }}>
